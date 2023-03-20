@@ -21,7 +21,6 @@ module RemoteRailsRakeRunner
       success = true
       rake_tasks = Rake.application.tasks
       task = rake_tasks.find { |t| t.name == params[:task] }
-      return head :not_found unless task
 
       begin
         output = capture_stdout do
@@ -31,13 +30,27 @@ module RemoteRailsRakeRunner
         success = false
         output = e.inspect
       ensure
-        rake_tasks.each { |task| task.reenable }
+        # rake_tasks.each { |task| task.reenable }
       end
 
       render json: {success: success, output: output}
     end
 
+    def reneable_environment
+      rake_tasks = Rake.application.tasks
+      rake_tasks.each { |task| task.reenable }
+    end
+
+    def reneable_rake
+      rake_tasks = Rake.application.tasks
+      task = rake_tasks.find { |t| t.name == params[:task] }
+      return head :not_found unless task
+
+      task.reenable
+    end
+
     private
+
     def environment_params
       params[:environment].permit! if params[:environment].respond_to?(:permit!)
       params[:environment]
