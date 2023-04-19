@@ -24,7 +24,7 @@ module RemoteRailsRakeRunner
 
       begin
         output = capture_stdout do
-          override_env(environment_params) { task.execute(*(params[:args] || '').split(',')) }
+          override_env(environment_params) { task.execute((params[:args] || '').split(',')) }
         end
       rescue => e
         success = false
