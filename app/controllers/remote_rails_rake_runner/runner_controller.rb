@@ -24,16 +24,19 @@ module RemoteRailsRakeRunner
 
       begin
         output = capture_stdout do
-          override_env(environment_params) { task.execute((params[:args] || '').split(',')) }
+          override_env(environment_params) { task.invoke(*(params[:args] || '').split(',')) }
         end
       rescue => e
         success = false
         output = e.inspect
+        callstack = e.backtrace.to_json
       ensure
         # rake_tasks.each { |task| task.reenable }
       end
 
-      render json: {success: success, output: output}
+      response = {success: success, output: output}
+      response[:callstack] = callstack if callstack
+      render json: response
     end
 
     def reneable_environment
